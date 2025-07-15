@@ -1,0 +1,13 @@
+add_library(
+    ZAMath_ops STATIC
+    vector_ops.cpp
+    matrix_ops.cpp
+    function_ops.cpp
+)
+
+target_link_libraries(ZAMath_ops PRIVATE ZAMath_core)
+
+target_include_directories(
+    ZAMath_ops PUBLIC
+    ${CMAKE_SOURCE_DIR}/include
+)

@@ -1,0 +1,12 @@
+add_executable(test_vector core/test_vector.cpp)
+target_link_libraries(test_vector PRIVATE ZAMath_core)
+
+# add_executable(test_vector_ops operations/test_vector_ops.cpp)
+# target_link_libraries(test_vector_ops PRIVATE ZAMath_ops)
+
+# add_executable(test_algorithms algorithms/test_algorithms.cpp)
+# target_link_libraries(test_algorithms PRIVATE ZAMath_ops)
+
+add_test(NAME test_vector COMMAND test_vector)
+# add_test(NAME test_vector_ops COMMAND test_vector_ops)
+# add_test(NAME test_algorithms COMMAND test_algorithms)

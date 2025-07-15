@@ -1,0 +1,13 @@
+cmake_minimum_required(VERSION 3.27)
+
+project(ZAMath VERSION 0.0.1 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+
+enable_testing()
+
+add_subdirectory(src/core)
+add_subdirectory(src/operations)
+add_subdirectory(src/algorithms)
+
+add_subdirectory(tests)

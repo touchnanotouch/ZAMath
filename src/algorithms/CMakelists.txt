@@ -1,0 +1,11 @@
+add_library(
+    ZAMath_algs STATIC
+    solvers.cpp
+    optimizers.cpp
+)
+
+target_link_libraries(
+    ZAMath_algs PRIVATE 
+    ZAMath_core 
+    ZAMath_ops
+)
