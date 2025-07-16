@@ -1,97 +1,90 @@
 #pragma once
 
+#include <type_traits>
+#include <cstddef>
+#include <stdexcept>
+#include <algorithm>
+#include <cmath>
+#include <ostream>
 
 namespace ZAMath {
     template <typename T>
     class Vector {
-        static_assert(
-            std::is_arithmetic_v<T>, 
-            "Vector requires integer or floating-point type"
-        );
+        private:
+            T* _data = nullptr;
+            size_t _size = 0;
+            double _eps = 1e-10;
 
-    private:
-        T* _data = nullptr;
-        size_t _size = 0;
+            // --- Основные проверки ---
 
-        using EpsilonType = std::conditional_t<
-            std::is_floating_point_v<T>,
-            T,
-            std::nullptr_t
-        >;
+            void _check_index(size_t index) const;
+            void _check_size_match(const Vector& rhs, const char* op) const;
+            void _check_divisor(T scalar) const;
 
-        EpsilonType _eps = []{
-            if constexpr (std::is_floating_point_v<T>) {
-                return T(1e-10);
-            } else {
-                return 1e-10;
-            }
-        }();
+            // --- Вспомогательные проверки для операторов сравнения ---
 
-        void _check_index(size_t index) const {
-            if (index >= _size) {
-                throw std::out_of_range("Vector index out of range");
-            }
-        }
+            bool _size_equal(const Vector& rhs) const noexcept;
+            bool _almost_equal(const Vector& rhs) const noexcept;
 
-    public:
-        Vector() = default;
+        public:
+            // --- Конструкторы / Деструктор / Операторы копирования и перемещения ---
 
-        explicit Vector(size_t size) : _size(size) {
-            _data = new T[_size]();
-        }
+            Vector();
+            Vector(size_t size);
+            Vector(size_t size, T init_val);
+            ~Vector();
 
-        Vector(size_t size, T init_val) : _size(size) {
-            _data = new T[_size];
-            std::fill(_data, _data + _size, init_val);
-        }
+            Vector(const Vector& other);
+            Vector(Vector&& other) noexcept;
 
-        ~Vector() { delete[] _data; }
+            Vector& operator=(const Vector& other);
+            Vector& operator=(Vector&& other) noexcept;
 
-        Vector(const Vector& other) : _size(other._size) {
-            _data = new T[_size];
-            std::copy(other._data, other._data + _size, _data);
-        }
+            // --- Операторы доступа по индексу ---
 
-        Vector& operator=(const Vector& other) {
-            if (this != &other) {
-                delete[] _data;
-                _size = other._size;
-                _data = new T[_size];
-                std::copy(other._data, other._data + _size, _data);
-            }
+            T& operator[](size_t index);
+            const T& operator[](size_t index) const;
 
-            return *this;
-        }
+            // --- Геттеры ---
 
-        Vector(Vector&& other) noexcept 
-            : _data(other._data), _size(other._size) {
-            other._data = nullptr;
-            other._size = 0;
-        }
+            size_t size() const noexcept;
+            double eps() const noexcept;
 
-        Vector& operator=(Vector&& other) noexcept {
-            if (this != &other) {
-                delete[] _data;
-                _data = other._data;
-                _size = other._size;
-                other._data = nullptr;
-                other._size = 0;
-            }
+            // --- Сеттеры ---
 
-            return *this;
-        }
+            void set_eps(double new_eps);
+            void resize(size_t new_size, T value = T());
 
-        T& operator[](size_t index) {
-            _check_index(index);
-            return _data[index];
-        }
+            // --- Итераторы ---
 
-        const T& operator[](size_t index) const {
-            _check_index(index);
-            return _data[index];
-        }
+            T* begin() noexcept;
+            T* end() noexcept;
+            const T* begin() const noexcept;
+            const T* end() const noexcept;
 
-        size_t size() const noexcept { return _size; }
-        EpsilonType eps() const noexcept { return _eps; }
+            // --- Арифметические операторы ---
+
+            Vector operator+(const Vector& rhs) const;
+            Vector operator-(const Vector& rhs) const;
+            Vector operator*(T scalar) const;
+            Vector operator/(T scalar) const;
+
+            // --- Скалярное произведение / Норма вектора ---
+
+            T dot(const Vector& rhs) const;
+            T norm() const;
+
+            // --- Операторы сравнения ---
+
+            bool operator==(const Vector& rhs) const;
+            bool operator!=(const Vector& rhs) const;
+
+            // --- Оператор вывода ---
+
+            template <typename U>
+            friend std::ostream& operator<<(std::ostream& os, const Vector<U>& v);
     };
 }
+
+
+#include "../../../src/core/Vector.tpp"
